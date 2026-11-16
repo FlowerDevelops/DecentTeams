@@ -1,1 +1,7 @@
 lang: en_us
+
+storage:
+  mysql:
+    jdbc: ""
+    user: ""
+    password: ""
