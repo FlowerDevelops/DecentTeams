@@ -1,0 +1,6 @@
+name: DecentTeams
+version: '${version}'
+
+main: nl.flowerdev.decentTeams.DecentTeams
+api-version: '26.3'
+load: POSTWORLD
