@@ -1,4 +1,4 @@
-package nl.flowerdev.decentTeams;
+package nl.flowerdev.decentteams;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
