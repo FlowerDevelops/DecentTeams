@@ -1,4 +1,4 @@
 # TODO (in order of execution)
 - [ ] MySQL database storage 
-- [ ] PlaceholderAPI integration
+- [X] PlaceholderAPI integration
 - [ ] Command(s)
