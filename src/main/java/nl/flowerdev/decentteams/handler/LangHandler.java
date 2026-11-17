@@ -20,7 +20,7 @@ public class LangHandler {
         decentTeams.saveResource("lang/en_us.yml", false);
 
         String language = decentTeams.getConfig().getString("lang");
-        File languageFile = new File(decentTeams.getDataFolder(), "lang" + language);
+        File languageFile = new File(decentTeams.getDataFolder(), "lang/" + language + ".yml");
 
         if (!languageFile.exists()) {
             decentTeams.logger.severe("[Critical Error] DecentTeams could not find the language file referred to in config.yml.");

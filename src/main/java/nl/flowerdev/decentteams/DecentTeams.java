@@ -23,7 +23,7 @@ public final class DecentTeams extends JavaPlugin {
         langHandler.init();
         papiHook.init();
 
-        try {
+       try {
             databaseStorage.init();
         } catch (SQLException e) {
             logger.severe(langHandler.translate("messages.errors.storage.mysql.sqlexception_setup"));
