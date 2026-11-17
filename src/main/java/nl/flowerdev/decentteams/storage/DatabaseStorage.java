@@ -1,3 +1,4 @@
+
 package nl.flowerdev.decentteams.storage;
 
 import nl.flowerdev.decentteams.DecentTeams;
@@ -59,6 +60,8 @@ public class DatabaseStorage { // Already sorry for the heavily commented code, 
             CREATE TABLE IF NOT EXISTS users (
                 uuid VARCHAR(36) PRIMARY KEY,
                 username VARCHAR(16) NOT NULL,
+                team_id INT DEFAULT NULL,
+                role VARCHAR(16) NOT NULL DEFAULT 'MEMBER',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
             """);
@@ -76,6 +79,15 @@ public class DatabaseStorage { // Already sorry for the heavily commented code, 
                 FOREIGN KEY (owner_uuid)
                     REFERENCES users(uuid)
             )
+            """);
+
+            // Add team foreign key
+            statement.executeUpdate("""
+            ALTER TABLE users
+            ADD CONSTRAINT fk_user_team
+                FOREIGN KEY (team_id)
+                REFERENCES teams(id)
+                ON DELETE SET NULL
             """);
 
             // Team members table
@@ -232,31 +244,29 @@ public class DatabaseStorage { // Already sorry for the heavily commented code, 
     }
 
     public boolean joinTeam(String userUUID, String teamName) throws SQLException {
-
         String sql = """
-        INSERT INTO team_members (team_id, player_uuid)
-        SELECT id, ?
-        FROM teams
-        WHERE name = ?
-        """;
+            UPDATE users
+            SET team_id = (SELECT id FROM teams WHERE name = ?)
+            WHERE uuid = ?
+            AND team_id IS NULL
+            """;
 
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, userUUID);
-            statement.setString(2, teamName);
+            statement.setString(1, teamName);
+            statement.setString(2, userUUID);
 
             return statement.executeUpdate() > 0;
         }
     }
 
-    public boolean setTeamRank(String userUUID, String teamName, String rank) throws SQLException {
-
+    public boolean setRank(String userUUID, String teamName, String rank) throws SQLException {
         String sql = """
-        UPDATE team_members tm
-        JOIN teams t ON tm.team_id = t.id
-        SET tm.role = ?
-        WHERE tm.player_uuid = ?
-        AND t.name = ?
-        """;
+            UPDATE users u
+            JOIN teams t ON u.team_id = t.id
+            SET u.role = ?
+            WHERE u.uuid = ?
+            AND t.name = ?
+            """;
 
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, rank);
@@ -265,5 +275,36 @@ public class DatabaseStorage { // Already sorry for the heavily commented code, 
 
             return statement.executeUpdate() > 0;
         }
+    }
+
+    public Team getPlayerTeam(String userUUID) throws SQLException {
+        String sql = """
+        SELECT t.id, t.name, t.display_name, t.owner_uuid, t.description
+        FROM users u
+        LEFT JOIN teams t ON u.team_id = t.id
+        WHERE u.uuid = ?
+        """;
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, userUUID);
+
+            try (ResultSet result = statement.executeQuery()) {
+                if (result.next()) {
+                    if (result.getObject("id") == null) {
+                        return new Team(0, "none", "none", "", ""); // So our other code doesn't blow up
+                    }
+
+                    return new Team(
+                            result.getInt("id"),
+                            result.getString("name"),
+                            result.getString("display_name"),
+                            result.getString("owner_uuid"),
+                            result.getString("description")
+                    );
+                }
+            }
+        }
+
+        return null;
     }
 }

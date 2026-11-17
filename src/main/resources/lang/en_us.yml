@@ -5,3 +5,4 @@ messages:
         jdbc_driver_not_found: "[Critical Error] the JDBC driver was not found."
         config_not_set: "[Critical Error] The JDBC, user or database value have not been set in the config."
         sqlexception_setup: "[Critical Error] SQLException was thrown during the setup of the database."
+        sqlexception_general: "[Error] SQLException was thrown during use of the plugin."
