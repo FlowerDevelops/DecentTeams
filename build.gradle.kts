@@ -11,6 +11,9 @@ repositories {
 dependencies {
     compileOnly("io.papermc.paper:paper-api:26.3.build.+")
     compileOnly("me.clip:placeholderapi:2.12.3")
+
+    // MySQL driver
+    implementation("com.mysql:mysql-connector-j:9.5.0")
 }
 
 java {

@@ -1,5 +1,6 @@
 name: DecentTeams
 version: '${version}'
+author: "FlowerDevelops" # Don't add yourself here. I'll do it when I find it appropriate
 main: nl.flowerdev.decentteams.DecentTeams
 api-version: '26.3'
 

@@ -1,7 +1,10 @@
+# DecentTeams configuration file,
+# Plugin Author: FlowerDevelops + contributors (https://github.com/FlowerDevelops/DecentTeams/contributors)
+
 lang: en_us
 
 storage:
   mysql:
-    jdbc: ""
-    user: ""
-    password: ""
+    jdbc: "" # e.i. jdbc:mysql://localhost:3306/mydb
+    user: "" # e.i. decentteams
+    password: "" # No example, make sure the password doesn't have a "
