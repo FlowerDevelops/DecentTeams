@@ -25,6 +25,7 @@ public class LangHandler {
         if (!languageFile.exists()) {
             decentTeams.logger.severe("[Critical Error] DecentTeams could not find the language file referred to in config.yml.");
             Bukkit.getPluginManager().disablePlugin(decentTeams);
+            return;
         }
 
         this.languageFile = languageFile;

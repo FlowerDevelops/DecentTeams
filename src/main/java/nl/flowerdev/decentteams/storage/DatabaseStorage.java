@@ -1,6 +1,7 @@
 package nl.flowerdev.decentteams.storage;
 
 import nl.flowerdev.decentteams.DecentTeams;
+import nl.flowerdev.decentteams.teams.Team;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 
@@ -32,8 +33,9 @@ public class DatabaseStorage { // Already sorry for the heavily commented code, 
         String password = config.getString("storage.mysql.password");
 
         if (jdbc == null || user == null || password == null) {
-            decentTeams.langHandler.translate("messages.errors.storage.mysql.config_not_set");
+            decentTeams.logger.severe(decentTeams.langHandler.translate("messages.errors.storage.mysql.config_not_set"));
             Bukkit.getPluginManager().disablePlugin(decentTeams);
+            return;
         }
 
         // IntelliJ marks that jdbc may be null?? I don't think it can
@@ -44,11 +46,11 @@ public class DatabaseStorage { // Already sorry for the heavily commented code, 
         try {
             setup();
         } catch (SQLException e) {
-            decentTeams.langHandler.translate("messages.errors.storage.mysql.sqlexception_setup");
+            decentTeams.logger.severe(decentTeams.langHandler.translate("messages.errors.storage.mysql.sqlexception_setup"));
+            Bukkit.getPluginManager().disablePlugin(decentTeams);
         }
     }
 
-    // AI start
     public void setup() throws SQLException {
         try (Statement statement = connection.createStatement()) {
 
@@ -59,7 +61,7 @@ public class DatabaseStorage { // Already sorry for the heavily commented code, 
                 username VARCHAR(16) NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
-        """);
+            """);
 
             // Teams table
             statement.executeUpdate("""
@@ -74,7 +76,7 @@ public class DatabaseStorage { // Already sorry for the heavily commented code, 
                 FOREIGN KEY (owner_uuid)
                     REFERENCES users(uuid)
             )
-        """);
+            """);
 
             // Team members table
             statement.executeUpdate("""
@@ -95,8 +97,108 @@ public class DatabaseStorage { // Already sorry for the heavily commented code, 
                     REFERENCES users(uuid)
                     ON DELETE CASCADE
             )
-        """);
+            """);
         }
     }
-    // AI end
+
+    // setString replaces '?'
+    public void createUser(String uuid, String username) throws SQLException {
+        String sql = """
+            INSERT INTO users (uuid, username)
+            VALUES (?, ?)
+            """;
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, uuid);
+            statement.setString(2, username);
+
+            statement.executeUpdate();
+        }
+    }
+
+    public boolean userExists(String userUUID) throws SQLException {
+        String sql = """
+            SELECT EXISTS (
+                        SELECT 1
+                        FROM users
+                        WHERE uuid = ?
+                    );
+        """;
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, userUUID);
+
+            try (ResultSet result = statement.executeQuery()) {
+                if (result.next()) {
+                    return result.getBoolean(1); // 1 if it's there, 0 if not
+                }
+            }
+        }
+        return false;
+    }
+
+    public void createTeam(String teamName, String teamDisplayName,
+                           String teamOwnerUUID, String description) throws SQLException {
+
+        String sql = """
+            INSERT INTO teams (name, display_name, owner_uuid, description)
+            VALUES (?, ?, ?, ?)
+            """;
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, teamName);
+            statement.setString(2, teamDisplayName);
+            statement.setString(3, teamOwnerUUID);
+            statement.setString(4, description);
+
+            statement.executeUpdate();
+        }
+    }
+
+    public boolean teamExists(String teamName) throws SQLException {
+        String sql = """
+            SELECT EXISTS (
+                        SELECT 1
+                        FROM teams
+                        WHERE name = ?
+                    );
+        """;
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, teamName);
+
+            try (ResultSet result = statement.executeQuery()) {
+                if (result.next()) {
+                    return result.getBoolean(1); // 1 if it's there, 0 if not
+                }
+            }
+        }
+        return false;
+    }
+
+    public Team getTeam(String teamName) throws SQLException {
+        String sql = """
+            SELECT id, name, display_name, owner_uuid, description
+            FROM teams
+            WHERE name = ?
+            """;
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, teamName);
+
+            try (ResultSet result = statement.executeQuery()) {
+                if (result.next()) {
+                    return new Team(
+                            result.getInt("id"),
+                            result.getString("name"),
+                            result.getString("display_name"),
+                            result.getString("owner_uuid"),
+                            result.getString("description")
+                    );
+                }
+            }
+        }
+
+        return null;
+    }
 }
