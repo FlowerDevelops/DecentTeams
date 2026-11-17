@@ -152,8 +152,7 @@ public class DatabaseStorage { // Already sorry for the heavily commented code, 
         }
     }
 
-    public void createTeam(String teamName, String teamDisplayName,
-                           String teamOwnerUUID, String description) throws SQLException {
+    public void createTeam(String teamName, String teamDisplayName, String teamOwnerUUID, String description) throws SQLException {
 
         String sql = """
             INSERT INTO teams (name, display_name, owner_uuid, description)
@@ -227,6 +226,42 @@ public class DatabaseStorage { // Already sorry for the heavily commented code, 
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, newDisplayName);
             statement.setString(2, teamName);
+
+            return statement.executeUpdate() > 0;
+        }
+    }
+
+    public boolean joinTeam(String userUUID, String teamName) throws SQLException {
+
+        String sql = """
+        INSERT INTO team_members (team_id, player_uuid)
+        SELECT id, ?
+        FROM teams
+        WHERE name = ?
+        """;
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, userUUID);
+            statement.setString(2, teamName);
+
+            return statement.executeUpdate() > 0;
+        }
+    }
+
+    public boolean setTeamRank(String userUUID, String teamName, String rank) throws SQLException {
+
+        String sql = """
+        UPDATE team_members tm
+        JOIN teams t ON tm.team_id = t.id
+        SET tm.role = ?
+        WHERE tm.player_uuid = ?
+        AND t.name = ?
+        """;
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, rank);
+            statement.setString(2, userUUID);
+            statement.setString(3, teamName);
 
             return statement.executeUpdate() > 0;
         }
