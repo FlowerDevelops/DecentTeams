@@ -14,9 +14,9 @@ public class DecentTeamsExpansion extends PlaceholderExpansion {
     DatabaseStorage databaseStorage;
     DecentTeams decentTeams;
 
-    public DecentTeamsExpansion(DecentTeams decentTeams, DatabaseStorage databaseStorage) {
-        this.databaseStorage = databaseStorage;
+    public DecentTeamsExpansion(DecentTeams decentTeams) {
         this.decentTeams = decentTeams;
+        databaseStorage = decentTeams.databaseStorage;
     }
 
     @Override

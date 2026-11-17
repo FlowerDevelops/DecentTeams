@@ -1,12 +1,19 @@
 package nl.flowerdev.decentteams.hook;
 
+import nl.flowerdev.decentteams.DecentTeams;
 import nl.flowerdev.decentteams.hook.papi.DecentTeamsExpansion;
 import org.bukkit.Bukkit;
 
 public class PapiHook {
-    public static void init() {
+    DecentTeams decentTeams;
+
+    public PapiHook(DecentTeams decentTeams) {
+        this.decentTeams = decentTeams;
+    }
+
+    public void init() {
         if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
-            new DecentTeamsExpansion().register();
+            new DecentTeamsExpansion(decentTeams).register();
         }
     }
 }
