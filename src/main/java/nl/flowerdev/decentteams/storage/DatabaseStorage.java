@@ -137,6 +137,21 @@ public class DatabaseStorage { // Already sorry for the heavily commented code, 
         return false;
     }
 
+    public boolean changeUsername(String userUUID, String newUsername) throws SQLException {
+        String sql = """
+            UPDATE users
+            SET username = ?
+            WHERE uuid = ?
+            """;
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, newUsername);
+            statement.setString(2, userUUID);
+
+            return statement.executeUpdate() > 0;
+        }
+    }
+
     public void createTeam(String teamName, String teamDisplayName,
                            String teamOwnerUUID, String description) throws SQLException {
 
@@ -200,5 +215,20 @@ public class DatabaseStorage { // Already sorry for the heavily commented code, 
         }
 
         return null;
+    }
+
+    public boolean changeTeamDisplayName(String teamName, String newDisplayName) throws SQLException {
+        String sql = """
+            UPDATE teams
+            SET display_name = ?
+            WHERE name = ?
+            """;
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, newDisplayName);
+            statement.setString(2, teamName);
+
+            return statement.executeUpdate() > 0;
+        }
     }
 }
