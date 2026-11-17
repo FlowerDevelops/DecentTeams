@@ -4,3 +4,4 @@
 - [X] PlaceholderAPI integration
 - [ ] Command(s) // Open for somebody else
 - [ ] API for DecentTeams // Open for somebody else
+- [ ] Unit tests // Open for somebody else
