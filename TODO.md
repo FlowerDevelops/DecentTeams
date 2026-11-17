@@ -5,4 +5,4 @@
 - [ ] Command(s) // Open for somebody else
 - [ ] API for DecentTeams // Open for somebody else
 - [ ] Unit tests // Open for somebody else
-- [ ] README.md
+- [ ] README.md // Open for somebody else
